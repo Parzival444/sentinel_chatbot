@@ -82,6 +82,7 @@ export default function App() {
   // To use environment variables, create a .env file in your project's root directory.
   // Add your API key like this: REACT_APP_OPENAI_API_KEY=your_key_here
   // The REACT_APP_ prefix is required for Create React App projects.
+  // those who know 💀💀💀
   const OPENAI_API_KEY = "s"+"k-pr"+"oj-XzzYY2SmpD_JJmtP1xUcmtnfjv0P2QyVZ_WtMCFOO"+"5nCwJsU_SgpJZwQNuKMTDB0uwGseDJLq0T3BlbkFJqzmtJurwHmZrIXWa9Vl9qcWZe0UfchNIL9qxWvNkEYGb2XNTtGFNc7bz5J5FnuC3umj59AEBMA";
   const MODEL = "gpt-4-turbo";
 
