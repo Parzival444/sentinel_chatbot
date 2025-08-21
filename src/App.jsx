@@ -79,7 +79,10 @@ export default function App() {
   const chatEndRef = useRef(null);
 
   // --- API & MODEL CONFIGURATION ---
-  const OPENAI_API_KEY = "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"; // ⚠️ PASTE YOUR KEY HERE
+  // To use environment variables, create a .env file in your project's root directory.
+  // Add your API key like this: REACT_APP_OPENAI_API_KEY=your_key_here
+  // The REACT_APP_ prefix is required for Create React App projects.
+  const OPENAI_API_KEY = "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";
   const MODEL = "gpt-4-turbo";
 
   // --- EFFECTS ---
@@ -98,6 +101,16 @@ export default function App() {
     localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
   }, [isDarkMode]);
 
+  useEffect(() => {
+   // This function is the "cleanup" function.
+   // It runs when the component unmounts (e.g., on page reload or close).
+   return () => {
+     if ('speechSynthesis' in window) {
+       window.speechSynthesis.cancel();
+     }
+   };
+ }, []);
+
   // --- HELPER FUNCTIONS ---
   // Function to convert a file to a base64 string
   const toBase64 = (file) => new Promise((resolve, reject) => {
@@ -110,15 +123,20 @@ export default function App() {
   // --- CORE LOGIC ---
 
   // 1. Text-to-Speech (TTS) using Browser's built-in Speech Synthesis
-  const handleTextToSpeech = (text) => {
-    if ('speechSynthesis' in window) {
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = 'en-US';
-      window.speechSynthesis.speak(utterance);
-    } else {
-      console.error("Browser does not support Speech Synthesis.");
-    }
-  };
+ // 1. Text-to-Speech (TTS) using Browser's built-in Speech Synthesis
+ const handleTextToSpeech = (text) => {
+   if ('speechSynthesis' in window) {
+     // --- ADD THIS LINE ---
+     // This will stop any currently speaking utterance immediately.
+     window.speechSynthesis.cancel();
+
+     const utterance = new SpeechSynthesisUtterance(text);
+     utterance.lang = 'en-US';
+     window.speechSynthesis.speak(utterance);
+   } else {
+     console.error("Browser does not support Speech Synthesis.");
+   }
+ };
 
   // 2. Handle Image Upload
   const handleImageChange = (e) => {
@@ -244,6 +262,12 @@ export default function App() {
     setInput('');
     removeImage();
 
+    // Define the system prompt
+    const systemMessage = {
+      role: 'system',
+      content: 'You are Sentinel Helper, a specialized AI assistant for the "Sentinel Defender" product. Your primary function is to provide expert support and guidance on security. Be concise (100 words or less), professional, and helpful. If a user asks a question unrelated to Sentinel Defender, politely decline to answer and steer the conversation back to the product. Do not engage in casual conversation or answer questions about other topics.'
+    };
+
     // Call OpenAI API
     try {
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -254,7 +278,8 @@ export default function App() {
         },
         body: JSON.stringify({
           model: MODEL,
-          messages: apiMessages,
+          // Prepend the system message to the existing chat history
+          messages: [systemMessage, ...apiMessages],
           max_tokens: 2048,
         }),
       });
