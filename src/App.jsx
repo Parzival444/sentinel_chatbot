@@ -36,6 +36,10 @@ export default function App() {
   // --- API & MODEL CONFIGURATION ---
   const OPENAI_API_KEY = "s"+"k-pr"+"oj-XzzYY2SmpD_JJmtP1xUcmtnfjv0P2QyVZ_WtMCFOO"+"5nCwJsU_SgpJZwQNuKMTDB0uwGseDJLq0T3BlbkFJqzmtJurwHmZrIXWa9Vl9qcWZe0UfchNIL9qxWvNkEYGb2XNTtGFNc7bz5J5FnuC3umj59AEBMA";
   const MODEL = "gpt-4-turbo";
+  const systemMessage = {
+    role: 'system',
+    content: 'You are Sentinel Helper, a specialized AI assistant for the "Sentinel Defender" product. Your primary function is to provide expert support and guidance on security. Be concise (100 words or less), professional, and helpful. If a user asks a question unrelated to Sentinel Defender, politely decline to answer and steer the conversation back to the product. Do not engage in casual conversation or answer questions about other topics.'
+  };
 
   // --- EFFECTS ---
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
@@ -204,7 +208,12 @@ export default function App() {
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${OPENAI_API_KEY}` },
-        body: JSON.stringify({ model: MODEL, messages: [systemMessage, ...apiMessages], max_tokens: 2048 }),
+        body: JSON.stringify({
+          model: MODEL,
+          messages: [systemMessage, ...apiMessages],
+          max_tokens: 2048,
+          temperature: 0.7,
+        }),
       });
       const data = await response.json();
       const assistantResponse = data.choices[0].message.content;
